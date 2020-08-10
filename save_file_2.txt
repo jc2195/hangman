@@ -1,0 +1,1 @@
+{"name":"Kuba","guess":["*","e","*","*","*","*","a","*","*","e"],"word":"remittance","bank":["a","e","f"],"lives":6,"letter":"f"}

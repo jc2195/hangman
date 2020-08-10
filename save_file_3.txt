@@ -1,0 +1,1 @@
+{"name":null,"guess":["i","*","e","u","*","*"],"word":"Iseult","bank":["a","e","i","o","u"],"lives":5,"letter":"u"}

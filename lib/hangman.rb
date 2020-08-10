@@ -36,7 +36,7 @@ module Logic
   # Method that adds the correct letters to guess array (add_to_guess)
   def add_to_guess
     @guess = @guess.map!.with_index do |character, index|
-      @word.downcase[index] == @letter ? @word.downcase[index] : character
+      @word.downcase[index] == @letter ? @word[index] : character
     end
   end
 
@@ -84,18 +84,21 @@ module Display
   # Method that shows the secret word
   def show_word
     print "The word was: #{@word} \n"
+    puts "\n"
   end
 
   # Method that displays winning message (show_win)
   def show_win
     puts "Congratulations #{@name}, you've won the game!"
     puts 'Hangman lives to hang another day!'
+    puts "\n"
   end
 
   # Method that displays losing message (show_lose)
   def show_lose
     puts "Uh oh... #{@name}... I think he's dead..."
     puts 'You need to do better next time!'
+    puts "\n"
   end
 end
 
@@ -106,10 +109,11 @@ module Input
     puts 'What is your name?'
     print 'Name: '
     name = gets.chomp
+    puts "\n\n"
     name
   end
 
-  # Method that asks player to select a letter (ask_letter)
+  # Method that asks player to select a letter, or say that they want to save the game (ask_letter)
   def ask_letter
     puts "Please select a letter or type 'save' to save game"
     correct_input = 0
@@ -118,17 +122,27 @@ module Input
       letter = gets.chomp.downcase
       if letter.length == 1 && letter.match(/[A-z]/) && !@bank.include?(letter)
         correct_input = 1
+      elsif letter == 'save'
+        puts "\n\n\n"
+        save
+        show_guess
+        show_lives
+        show_bank
+        puts ''
       else
         puts 'PLEASE ENTER A LETTER WHICH HAS NOT BEEN USED'
       end
     end
+    puts "\n\n"
     letter
   end
 
   # Method that asks user what save file they want to use (ask_save_file)
   def ask_save_file
     puts 'What save file would you like to use?'
+    puts ''
     puts '1  2  3'
+    puts ''
     correct_input = 0
     until correct_input == 1
       print 'Save file number: '
@@ -139,14 +153,17 @@ module Input
         puts 'PLEASE ENTER A NUMBER FROM 1-3'
       end
     end
+    puts "\n\n"
     "save_file_#{save_file}.txt"
   end
 
   # Method that asks user what menu option they want to select (ask_menu_option)
   def ask_menu_option
     puts 'What would you like to do?'
+    puts ''
     puts '1. Start New Game'
     puts '2. Load Game From Save File'
+    puts ''
     correct_input = 0
     until correct_input == 1
       print 'Enter a number: '
@@ -157,14 +174,15 @@ module Input
         puts 'PLEASE ENTER 1 OR 2'
       end
     end
+    puts "\n\n"
     option
   end
 
-  # Method that asks player if they want to save the game (ask_save)
-  def ask_save
+  # Method that asks the player if they want to play again (ask_play_again)
+  def ask_play_again
     correct_input = 0
     until correct_input == 1
-      print 'Do you want to save game? (y/n): '
+      print 'Do you want to play again? (y/n): '
       option = gets.chomp.downcase
       if %w[y n].include?(option)
         correct_input = 1
@@ -172,8 +190,11 @@ module Input
         puts 'PLEASE ENTER Y OR N'
       end
     end
+    puts "\n\n"
     option
   end
+
+  #
 end
 
 # Class for hangman game (Game)
@@ -186,6 +207,7 @@ class Game
 
   attr_reader :guess
   attr_reader :word
+  attr_reader :name
 
   # Instance variables
   def initialize
@@ -223,7 +245,7 @@ class Game
 
   # Method that unserializes JSON game data
   def unserialize(string)
-    data = string.from_json
+    data = JSON.parse(string)
     data
   end
 
@@ -239,6 +261,7 @@ class Game
     show_guess
     show_lives
     show_bank
+    puts ''
     set_letter(ask_letter)
     add_to_bank
     add_to_guess
@@ -258,34 +281,59 @@ class Game
 
   # Method that plays game (play)
   def play
-    setup
-    round_sequence
+    choice = ask_menu_option
+    choice == '1' ? setup : load
+    continue = 1
+    while continue == 1
+      round_sequence
+      if ask_play_again == 'y'
+        reset
+      else
+        continue = 0
+        puts 'Goodbye!'
+        puts "\n\n"
+      end
+    end
   end
 
   # Method that resets the game (reset)
-
-  # Method that resumes loaded game (resume)
+  def reset
+    @lives = 7
+    @letter = ''
+    @bank = []
+    @guess = []
+    @word = ''
+    set_word
+    set_guess
+  end
 
   # Method that saves the current game (save)
   def save
-    save_file = File.open(ask_save_file, 'w')
+    file_name = ask_save_file
+    save_file = File.open(file_name, 'w')
     save_file.puts(serialize)
     save_file.close
+    puts "Game has been saved to Save File #{file_name[-5]}!"
+    puts "\n\n"
   end
 
   # Method that loads a game file (load)
   def load
-    save_file = File.open(ask_save_file, 'r')
+    file_name = ask_save_file
+    save_file = File.open(file_name, 'r')
     save_file.pos = 0
     contents = unserialize(save_file.read)
-    @name = contents[:name]
-    @guess = contents[:guess]
-    @word = contents[:word]
-    @bank = contents[:bank]
-    @lives = contents[:lives]
-    @letter = contents[:letter]
+    @name = contents['name']
+    @guess = contents['guess']
+    @word = contents['word']
+    @bank = contents['bank']
+    @lives = contents['lives']
+    @letter = contents['letter']
+    puts "Game has been loaded from Save File #{file_name[-5]}!"
+    puts "\n\n"
   end
 end
 
 game = Game.new
+
 game.play
