@@ -1,1 +1,1 @@
-{"name":null,"guess":["*","*","e","a","*","i","*","*"],"word":"bleakish","bank":["a","e","i","o"],"lives":6,"letter":"o"}
+{"name":"Kuba","guess":["*","*","*","*","*","*","*","*","*","*","*","*"],"word":"depositional","bank":[],"lives":7,"letter":""}

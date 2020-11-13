@@ -230,6 +230,25 @@ class Game
     @letter = ''
   end
 
+  # Method that plays game (play)
+  def play
+    choice = ask_menu_option
+    choice == '1' ? setup : load
+    continue = 1
+    while continue == 1
+      round_sequence
+      if ask_play_again == 'y'
+        reset
+      else
+        continue = 0
+        puts 'Goodbye!'
+        puts "\n\n"
+      end
+    end
+  end
+
+  private
+
   # Method that serializes essential game data into JSON
   def serialize
     data = {
@@ -277,23 +296,6 @@ class Game
     end
     win_flag ? show_win : show_lose
     show_word
-  end
-
-  # Method that plays game (play)
-  def play
-    choice = ask_menu_option
-    choice == '1' ? setup : load
-    continue = 1
-    while continue == 1
-      round_sequence
-      if ask_play_again == 'y'
-        reset
-      else
-        continue = 0
-        puts 'Goodbye!'
-        puts "\n\n"
-      end
-    end
   end
 
   # Method that resets the game (reset)
